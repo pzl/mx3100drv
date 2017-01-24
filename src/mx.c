@@ -126,6 +126,7 @@ MXCOMMAND(led_mode) {
 		settings[LED_MODE_ADDR] = LED_MODE_OFF;
 	} else if (strcmp(argv[0],"standard") == 0) {
 		settings[LED_MODE_ADDR] = LED_MODE_STD;
+		settings[LED_CFG_ADDR] = LED_BRIGHT_MAX;
 	} else if (strcmp(argv[0],"breathe") == 0) {
 		settings[LED_MODE_ADDR] = LED_MODE_BREATHE;
 	} else if (strcmp(argv[0],"neon") == 0) {
@@ -141,6 +142,38 @@ MXCOMMAND(led_mode) {
 	return err;
 }
 
+
+
+MXCOMMAND(led_brightness) {
+	int err, value;
+	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
+				  buttons[DATA_LINE_LEN*DATA_LINES];
+	err = read_settings(settings, buttons);
+	if (err != 0) { return err; }
+
+	if (settings[LED_MODE_ADDR] != LED_MODE_STD) {
+		fprintf(stderr, "Brightness is only valid when 'standard' LED mode is active\n");
+		return -2;
+	}
+
+	if (argc == 0) {
+		printf("%d\n", settings[LED_CFG_ADDR]);
+		return 0;
+	}
+
+	value = atoi(argv[0]);
+	if (value < LED_BRIGHT_MIN || value > LED_BRIGHT_MAX) {
+		fprintf(stderr, "Brightness value out of range. Must be %d to %d\n", LED_BRIGHT_MIN, LED_BRIGHT_MAX);
+		return -2;
+	}
+
+	settings[LED_CFG_ADDR] = value;
+
+	if ((err = write_settings(settings,buttons)) != 0){
+		fprintf(stderr, "Error changing LED brightness\n");
+	}
+	return err;
+}
 }
 
 int send_startup_cmds(void) {

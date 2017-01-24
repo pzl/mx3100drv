@@ -64,6 +64,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define LED_MODE_BREATHE 0x02
 #define LED_MODE_NEON    0x03
 
+#define LED_CFG_ADDR 0x48
+#define LED_BRIGHT_MIN   0x00
+#define LED_BRIGHT_MAX   0x0A
+#define LED_SPEED_LOW    0x01
+#define LED_SPEED_MAX    0x0F
 
 typedef int (*MXCommand)(int, char **);
 #define MXCOMMAND(func_name) int func_name(int argc, char **argv)
@@ -76,7 +81,7 @@ typedef int (*MXCommand)(int, char **);
 MXCOMMAND(angle_snap);
 MXCOMMAND(angle_correct);
 MXCOMMAND(led_mode);
-
+MXCOMMAND(led_brightness);
 
 /* setup */
 int send_startup_cmds(void);
