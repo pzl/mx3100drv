@@ -42,17 +42,10 @@ int main(int argc, char **argv){
 
 	while ((opt = getopt_long(argc, argv, short_opt, long_opt, NULL)) != -1 ) {
 		switch (opt) {
-			case 'v':
-				verbose = 1;
-				break;
-			case 'V':
-				printf("mx3100drv v%s\n", VERSION);
-				exit(0);
-			case 'h':
-				HELP(0);
-			case ':':
-			case '?':
-				HELP(-2);
+			case 'v': verbose = 1; break;
+			case 'V': printf("mx3100drv v%s\n", VERSION); exit(0);
+			case 'h': HELP(0);
+			case ':': case '?': HELP(-2);
 			default:
 				fprintf(stderr, "%s: invalid option -- %c\n", argv[0], opt);
 				HELP(-2);
