@@ -48,7 +48,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 /* Settings locations */
 #define ANGLE_SNAP_ADDR 0x33
-#define ANGLE_SNAP_ENABLED 1
+#define ANGLE_SNAP_ENABLED  1
 #define ANGLE_SNAP_DISABLED 0
 //oddly no linear or bitwise relationship here
 #define ANGLE_CORRECT_ADDR 0x31
@@ -58,6 +58,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define ANGLE_CORRECT_POS1 0x0f
 #define ANGLE_CORRECT_POS2 0x1e
 
+#define LED_MODE_ADDR 0x47
+#define LED_MODE_OFF     0x00
+#define LED_MODE_STD     0x01
+#define LED_MODE_BREATHE 0x02
+#define LED_MODE_NEON    0x03
 
 
 typedef int (*MXCommand)(int, char **);
@@ -70,7 +75,7 @@ typedef int (*MXCommand)(int, char **);
 */
 MXCOMMAND(angle_snap);
 MXCOMMAND(angle_correct);
-
+MXCOMMAND(led_mode);
 
 /* internal helpers */
 int send_startup_cmds(void);

@@ -117,6 +117,53 @@ MXCOMMAND(angle_correct) {
 	return write_section(BUTTONS_ADDR,buttons);
 }
 
+MXCOMMAND(led_mode) {
+	int err;
+	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
+				  buttons[DATA_LINE_LEN*DATA_LINES];
+	err = read_section(CONFIGS_ADDR, settings);
+	if (err != 0) {
+		fprintf(stderr, "Error retrieving mouse info\n");
+		return -2;
+	}
+	err = read_section(BUTTONS_ADDR, buttons);
+	if (err != 0) {
+		fprintf(stderr, "Error retrieving mouse info\n");
+		return -2;
+	}
+
+	if (argc == 0) {
+		switch (settings[LED_MODE_ADDR]) {
+			case LED_MODE_OFF: printf("off\n"); break;
+			case LED_MODE_STD: printf("standard\n"); break;
+			case LED_MODE_BREATHE: printf("breathe\n"); break;
+			case LED_MODE_NEON: printf("neon\n"); break;
+			default: printf("unknown value: 0x%02x\n", settings[LED_MODE_ADDR]); break;
+		}
+		return 0;
+	}
+
+	if (strcmp(argv[0],"off") == 0) {
+		settings[LED_MODE_ADDR] = LED_MODE_OFF;
+	} else if (strcmp(argv[0],"standard") == 0) {
+		settings[LED_MODE_ADDR] = LED_MODE_STD;
+	} else if (strcmp(argv[0],"breathe") == 0) {
+		settings[LED_MODE_ADDR] = LED_MODE_BREATHE;
+	} else if (strcmp(argv[0],"neon") == 0) {
+		settings[LED_MODE_ADDR] = LED_MODE_NEON;
+	} else {
+		fprintf(stderr, "Invalid argument. Must be one of: off, standard, breathe, neon\n");
+		return -2;
+	}
+
+	err = write_section(CONFIGS_ADDR, settings);
+	if (err != 0) {
+		fprintf(stderr, "Error changing LED mode\n");
+		return err;
+	}
+	return write_section(BUTTONS_ADDR, buttons);
+}
+
 
 int read_section(unsigned char addr, unsigned char *buf) {
 	unsigned char cmd[CMD_MSG_LEN] = {ADDR_READ,0x00,0x00,0x00,0x00,0x00,0x00,addr};

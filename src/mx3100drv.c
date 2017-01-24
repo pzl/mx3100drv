@@ -56,6 +56,8 @@ int main(int argc, char **argv){
 		action = angle_snap;
 	} else if (strcmp(command,"angle") == 0) {
 		action = angle_correct;
+	} else if (strcmp(command,"led") == 0) {
+		action = led_mode;
 	} else {
 		fprintf(stderr, "%s is not a valid command.\n", command);
 		HELP(-2);
