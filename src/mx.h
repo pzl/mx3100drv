@@ -28,6 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #define SETTINGS_ADDR_MAX 0x73
 #define SETTINGS_ADDR_PARITY 0x0c
+#define MACRO_ADDR_PARITY 0x70
 
 #define MACRO_MEM_FLAG 0x0f
 #define MACRO_ADDR_START 0x6f
@@ -45,8 +46,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
 
-typedef int (*MXCommand)(int, char **, int, int);
-#define MXCOMMAND(func_name) int func_name(int argc, char **argv, int target_profile, int verbose)
+typedef int (*MXCommand)(int, char **, int);
+#define MXCOMMAND(func_name) int func_name(int argc, char **argv, int verbose)
 
 
 
@@ -55,11 +56,13 @@ typedef int (*MXCommand)(int, char **, int, int);
 */
 
 
-
-
 /* internal helpers */
-int read_section(unsigned char addr, unsigned char *buf);
 int send_startup_cmds(void);
 
+int read_section(unsigned char addr, unsigned char *buf);
+int write_section(unsigned char addr, unsigned char *buf);
+
+int set_bytes(unsigned char addr, unsigned char offset, unsigned char len, unsigned char *buf);
+int rewrite(unsigned char addr);
 
 #endif

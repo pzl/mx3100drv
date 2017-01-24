@@ -31,6 +31,7 @@ int read_section(unsigned char addr, unsigned char *buf) {
 		cmd[0] |= SETTINGS_ADDR_MAX-addr + SETTINGS_ADDR_PARITY;
 	} else {
 		cmd[0] |= MACRO_MEM_FLAG;
+		cmd[1] = MACRO_ADDR_PARITY-addr;
 	}
 
 	err = send_ctl(cmd);
@@ -46,6 +47,56 @@ int read_section(unsigned char addr, unsigned char *buf) {
 	err = read_data( buf );
 	err = read_data( &buf[DATA_LINE_LEN] );
 
+	return err;
+}
+
+int write_section(unsigned char addr, unsigned char *buf) {
+	unsigned char cmd[CMD_MSG_LEN] = {0x00,0x00,DATA_LINE_LEN*DATA_LINES,0x00,0x00,0x00,0x00,addr};
+	int err;
+
+	if ( addr == CONFIGS_ADDR || addr == BUTTONS_ADDR ) {
+		cmd[0] = SETTINGS_ADDR_MAX-addr + SETTINGS_ADDR_PARITY;
+	} else {
+		cmd[0] = MACRO_MEM_FLAG;
+		cmd[1] = MACRO_ADDR_PARITY-addr;
+	}
+
+	err = send_ctl(cmd);
+	if (err != 0) {
+		return err;
+	}
+
+	err = send_data(buf);
+	err = send_data(&buf[DATA_LINE_LEN]);
+
+	return err;
+}
+
+int set_bytes(unsigned char addr, unsigned char offset, unsigned char len, unsigned char *buf) {
+	unsigned char data[DATA_LINE_LEN*DATA_LINES];
+	int err;
+
+	err = read_section(addr, data);
+	if (err != 0){
+		return err;
+	}
+
+	memcpy( &data[offset], buf, len );
+
+	err = write_section(addr, data);
+	return err;
+}
+
+int rewrite(unsigned char addr) {
+	unsigned char data[DATA_LINE_LEN*DATA_LINES];
+	int err;
+
+	err = read_section(addr, data);
+	if (err != 0){
+		return err;
+	}
+
+	err = write_section(addr, data);
 	return err;
 }
 
