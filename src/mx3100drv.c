@@ -60,6 +60,8 @@ int main(int argc, char **argv){
 		action = led_mode;
 	} else if (strcmp(command,"brightness")==0){
 		action = led_brightness;
+	} else if (strcmp(command,"speed") == 0) {
+		action = led_speed;
 	} else {
 		fprintf(stderr, "%s is not a valid command.\n", command);
 		HELP(-2);

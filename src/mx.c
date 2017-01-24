@@ -129,8 +129,10 @@ MXCOMMAND(led_mode) {
 		settings[LED_CFG_ADDR] = LED_BRIGHT_MAX;
 	} else if (strcmp(argv[0],"breathe") == 0) {
 		settings[LED_MODE_ADDR] = LED_MODE_BREATHE;
+		settings[LED_CFG_ADDR] = LED_SPEED_MIN;
 	} else if (strcmp(argv[0],"neon") == 0) {
 		settings[LED_MODE_ADDR] = LED_MODE_NEON;
+		settings[LED_CFG_ADDR] = LED_SPEED_MIN;
 	} else {
 		fprintf(stderr, "Invalid argument. Must be one of: off, standard, breathe, neon\n");
 		return -2;
@@ -174,6 +176,32 @@ MXCOMMAND(led_brightness) {
 	}
 	return err;
 }
+
+MXCOMMAND(led_speed) {
+	int err, value;
+	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
+				  buttons[DATA_LINE_LEN*DATA_LINES];
+	err = read_settings(settings, buttons);
+	if (err != 0) { return err; }
+
+	if (settings[LED_MODE_ADDR] != LED_MODE_NEON && settings[LED_MODE_ADDR] != LED_MODE_BREATHE) {
+		fprintf(stderr, "Speed is only valid when 'neon' or 'breathe' LED modes are active\n");
+		return -2;
+	}
+
+	if (argc == 0) {
+		printf("%d\n", settings[LED_CFG_ADDR]);
+		return 0;
+	}
+
+	value = atoi(argv[0]);
+	if (value < LED_SPEED_MIN || value > LED_SPEED_MAX) {
+		fprintf(stderr, "Speed value out of range. Must be %d to %d\n", LED_SPEED_MIN, LED_SPEED_MAX);
+		return -2;
+	}
+	settings[LED_CFG_ADDR] = value;
+
+	return write_settings(settings,buttons);
 }
 
 int send_startup_cmds(void) {
