@@ -1,0 +1,10 @@
+*.swp
+
+*.o
+*.a
+a.out
+
+build
+test
+mx3100drv
+mem.bin
