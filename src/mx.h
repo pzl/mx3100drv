@@ -77,13 +77,8 @@ MXCOMMAND(angle_snap);
 MXCOMMAND(angle_correct);
 MXCOMMAND(led_mode);
 
-/* internal helpers */
+
+/* setup */
 int send_startup_cmds(void);
-
-int read_section(unsigned char addr, unsigned char *buf);
-int write_section(unsigned char addr, unsigned char *buf);
-
-int set_bytes(unsigned char addr, unsigned char offset, unsigned char len, unsigned char *buf);
-int rewrite(unsigned char addr);
 
 #endif

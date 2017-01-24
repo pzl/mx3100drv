@@ -27,6 +27,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 		fprintf(stderr, "valid values are 'on' or 'off'.\n"); return -2; \
 	} } while(0)
 
+/* internal helpers */
+static int read_section(unsigned char addr, unsigned char *buf);
+static int write_section(unsigned char addr, unsigned char *buf);
+
 static int valid_hex(char *s);
 static int is_on_off(char *s);
 static int on(char *s);
@@ -181,10 +185,15 @@ int read_section(unsigned char addr, unsigned char *buf) {
 	if (err != 0){
 		return err;
 	}
-
 	err = read_ctl(rsp);
 	if (err != 0) {
 		return err;
+	}
+
+	if (rsp[0] != cmd[0]) {
+		fprintf(stderr, "CMD 0x%02x%02x%02x%02x%02x%02x%02x%02x received weird ACK 0x%02x%02x%02x%02x%02x%02x%02x%02x\n", 
+		        cmd[0],cmd[1],cmd[2],cmd[3],cmd[4],cmd[5],cmd[6],cmd[7],
+		        rsp[0],rsp[1],rsp[2],rsp[3],rsp[4],rsp[5],rsp[6],rsp[7]);
 	}
 
 	err = read_data( buf );
@@ -215,34 +224,6 @@ int write_section(unsigned char addr, unsigned char *buf) {
 	return err;
 }
 
-int set_bytes(unsigned char addr, unsigned char offset, unsigned char len, unsigned char *buf) {
-	unsigned char data[DATA_LINE_LEN*DATA_LINES];
-	int err;
-
-	err = read_section(addr, data);
-	if (err != 0){
-		return err;
-	}
-
-	memcpy( &data[offset], buf, len );
-
-	err = write_section(addr, data);
-	return err;
-}
-
-int rewrite(unsigned char addr) {
-	unsigned char data[DATA_LINE_LEN*DATA_LINES];
-	int err;
-
-	err = read_section(addr, data);
-	if (err != 0){
-		return err;
-	}
-
-	err = write_section(addr, data);
-	return err;
-}
-
 int send_startup_cmds(void) {
 	int err;
 
@@ -253,43 +234,18 @@ int send_startup_cmds(void) {
 	return err;
 }
 
-static int valid_hex(char *s) {
-	if (strlen(s) == 6 && strspn(s,"0123456789abcdefABCDEF") == 6){
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
-static int on(char *s) {
-	return s[1] == 'n';
-}
+static int valid_hex(char *s) { return strlen(s) == 6 && strspn(s,"0123456789abcdefABCDEF") == 6; }
+static int on(char *s) { return s[1] == 'n'; }
 
 static int is_on_off(char *s) {
 	int len = strlen(s);
-
-	if (len < 2 || len > 3) {
+	if (len < 2 || len > 3 || (s[0] != 'o' && s[0] != 'O') ) {
 		return 0;
 	}
-
-	if (s[0] != 'o' && s[0] != 'O') {
-		return 0;
+	if ( (s[1] == 'n' || s[1] =='N') && s[2] == '\0' ) {
+		return 1;
+	} else if ( (s[1]=='f'||s[1]=='F') && (s[2]=='f'||s[2]=='F') ){
+		return 1;
 	}
-
-
-	if (s[1] == 'n' || s[1]=='N') {
-		if (len == 3) {
-			return 0;
-		}
-	} else if (s[1] == 'f' || s[1]=='F') {
-		if (len == 2 || (s[2] != 'f' && s[2] != 'F')) {
-			return 0;
-		}
-	} else {
-		//second letter incorrect
-		return 0;
-	}
-
-
-	return 1;
+	return 0;
 }
