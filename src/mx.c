@@ -30,6 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 /* internal helpers */
 static int read_section(unsigned char addr, unsigned char *buf);
 static int write_section(unsigned char addr, unsigned char *buf);
+static int read_settings(unsigned char *config, unsigned char *buttons);
 
 static int valid_hex(char *s);
 static int is_on_off(char *s);
@@ -39,16 +40,8 @@ MXCOMMAND(angle_snap) {
 	int err;
 	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
 				  buttons[DATA_LINE_LEN*DATA_LINES];
-	err = read_section(CONFIGS_ADDR, settings);
-	if (err != 0) {
-		fprintf(stderr, "Error retrieving mouse info\n");
-		return -2;
-	}
-	err = read_section(BUTTONS_ADDR, buttons);
-	if (err != 0) {
-		fprintf(stderr, "Error retrieving mouse info\n");
-		return -2;
-	}
+	err = read_settings(settings, buttons);
+	if (err != 0) { return err; }
 
 	if (argc == 0) {
 		if (settings[ANGLE_SNAP_ADDR] == ANGLE_SNAP_ENABLED) {
@@ -76,16 +69,8 @@ MXCOMMAND(angle_correct) {
 	int err, angle;
 	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
 				  buttons[DATA_LINE_LEN*DATA_LINES];
-	err = read_section(CONFIGS_ADDR, settings);
-	if (err != 0) {
-		fprintf(stderr, "Error retrieving mouse info\n");
-		return -2;
-	}
-	err = read_section(BUTTONS_ADDR, buttons);
-	if (err != 0) {
-		fprintf(stderr, "Error retrieving mouse info\n");
-		return -2;
-	}
+	err = read_settings(settings, buttons);
+	if (err != 0) { return err; }
 
 	if (argc == 0) {
 		switch (settings[ANGLE_CORRECT_ADDR]) {
@@ -125,16 +110,8 @@ MXCOMMAND(led_mode) {
 	int err;
 	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
 				  buttons[DATA_LINE_LEN*DATA_LINES];
-	err = read_section(CONFIGS_ADDR, settings);
-	if (err != 0) {
-		fprintf(stderr, "Error retrieving mouse info\n");
-		return -2;
-	}
-	err = read_section(BUTTONS_ADDR, buttons);
-	if (err != 0) {
-		fprintf(stderr, "Error retrieving mouse info\n");
-		return -2;
-	}
+	err = read_settings(settings, buttons);
+	if (err != 0) { return err; }
 
 	if (argc == 0) {
 		switch (settings[LED_MODE_ADDR]) {
@@ -168,8 +145,33 @@ MXCOMMAND(led_mode) {
 	return write_section(BUTTONS_ADDR, buttons);
 }
 
+int send_startup_cmds(void) {
+	int err;
 
-int read_section(unsigned char addr, unsigned char *buf) {
+	unsigned char start1[CMD_MSG_LEN] = {0x02,0x00,0x00,0x00,0x00,0x00,0x00,0xfd};
+	unsigned char start2[CMD_MSG_LEN] = {0x03,0x00,0x02,0x00,0x00,0x00,0x00,0xfa}; /* @todo poll rate */
+	err = send_ctl(start1);
+	err = send_ctl(start2);
+	return err;
+}
+
+
+static int read_settings(unsigned char *config, unsigned char *buttons) {
+	int err;
+	err = read_section(CONFIGS_ADDR, config);
+	if (err != 0) {
+		fprintf(stderr, "Error retrieving mouse info\n");
+		return -2;
+	}
+	err = read_section(BUTTONS_ADDR, buttons);
+	if (err != 0) {
+		fprintf(stderr, "Error retrieving mouse info\n");
+		return -2;
+	}
+	return 0;
+}
+
+static int read_section(unsigned char addr, unsigned char *buf) {
 	unsigned char cmd[CMD_MSG_LEN] = {ADDR_READ,0x00,0x00,0x00,0x00,0x00,0x00,addr};
 	unsigned char rsp[CMD_MSG_LEN];
 	int err;
@@ -202,7 +204,7 @@ int read_section(unsigned char addr, unsigned char *buf) {
 	return err;
 }
 
-int write_section(unsigned char addr, unsigned char *buf) {
+static int write_section(unsigned char addr, unsigned char *buf) {
 	unsigned char cmd[CMD_MSG_LEN] = {0x00,0x00,DATA_LINE_LEN*DATA_LINES,0x00,0x00,0x00,0x00,addr};
 	int err;
 
@@ -221,16 +223,6 @@ int write_section(unsigned char addr, unsigned char *buf) {
 	err = send_data(buf);
 	err = send_data(&buf[DATA_LINE_LEN]);
 
-	return err;
-}
-
-int send_startup_cmds(void) {
-	int err;
-
-	unsigned char start1[CMD_MSG_LEN] = {0x02,0x00,0x00,0x00,0x00,0x00,0x00,0xfd};
-	unsigned char start2[CMD_MSG_LEN] = {0x03,0x00,0x02,0x00,0x00,0x00,0x00,0xfa}; /* @todo poll rate */
-	err = send_ctl(start1);
-	err = send_ctl(start2);
 	return err;
 }
 
