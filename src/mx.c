@@ -85,16 +85,11 @@ MXCOMMAND(angle_correct) {
 
 	if (argc == 0) {
 		switch (settings[ANGLE_CORRECT_ADDR]) {
-			case ANGLE_CORRECT_NEG2:
-				printf("-2\n"); break;
-			case ANGLE_CORRECT_NEG1:
-				printf("-1\n"); break;
-			case ANGLE_CORRECT_ZERO:
-				printf("0\n"); break;
-			case ANGLE_CORRECT_POS1:
-				printf("1\n"); break;
-			case ANGLE_CORRECT_POS2:
-				printf("2\n"); break;
+			case ANGLE_CORRECT_NEG2: printf("-2\n"); break;
+			case ANGLE_CORRECT_NEG1: printf("-1\n"); break;
+			case ANGLE_CORRECT_ZERO: printf("0\n"); break;
+			case ANGLE_CORRECT_POS1: printf("1\n"); break;
+			case ANGLE_CORRECT_POS2: printf("2\n"); break;
 			default:
 				printf("unknown value: 0x%02x\n", settings[ANGLE_CORRECT_ADDR]);
 				break;
@@ -105,16 +100,11 @@ MXCOMMAND(angle_correct) {
 	angle = atoi(argv[0]);
 
 	switch (angle) {
-		case -2:
-			settings[ANGLE_CORRECT_ADDR] = ANGLE_CORRECT_NEG2; break;
-		case -1:
-			settings[ANGLE_CORRECT_ADDR] = ANGLE_CORRECT_NEG1; break;
-		case 0:
-			settings[ANGLE_CORRECT_ADDR] = ANGLE_CORRECT_ZERO; break;
-		case 1:
-			settings[ANGLE_CORRECT_ADDR] = ANGLE_CORRECT_POS1; break;
-		case 2:
-			settings[ANGLE_CORRECT_ADDR] = ANGLE_CORRECT_POS2; break;
+		case -2: settings[ANGLE_CORRECT_ADDR] = ANGLE_CORRECT_NEG2; break;
+		case -1: settings[ANGLE_CORRECT_ADDR] = ANGLE_CORRECT_NEG1; break;
+		case 0: settings[ANGLE_CORRECT_ADDR] = ANGLE_CORRECT_ZERO; break;
+		case 1: settings[ANGLE_CORRECT_ADDR] = ANGLE_CORRECT_POS1; break;
+		case 2: settings[ANGLE_CORRECT_ADDR] = ANGLE_CORRECT_POS2; break;
 		default:
 			fprintf(stderr, "invalid number provided. Must be between -2 and 2. %d given\n", angle);
 			return -2;
