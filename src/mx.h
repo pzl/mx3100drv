@@ -60,8 +60,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
 
-typedef int (*MXCommand)(int, char **, int);
-#define MXCOMMAND(func_name) int func_name(int argc, char **argv, int verbose)
+typedef int (*MXCommand)(int, char **);
+#define MXCOMMAND(func_name) int func_name(int argc, char **argv)
 
 
 

@@ -27,28 +27,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 static void help(int status, char *program_name);
 
 int main(int argc, char **argv){
-	int err,
-		opt,
-		verbose=0;
+	int err,opt;
 	char *command;
 	MXCommand action = NULL;
 	const char *short_opt = "hvV";
 	struct option long_opt[] = {
 		{"help", 	no_argument, NULL, 'h'},
-		{"verbose", no_argument, NULL, 'v'},
 		{"version",	no_argument, NULL, 'V'},
 		{NULL, 		0,			 NULL,	0}
 	};
 
 	while ((opt = getopt_long(argc, argv, short_opt, long_opt, NULL)) != -1 ) {
 		switch (opt) {
-			case 'v': verbose = 1; break;
 			case 'V': printf("mx3100drv v%s\n", VERSION); exit(0);
 			case 'h': HELP(0);
-			case ':': case '?': HELP(-2);
-			default:
-				fprintf(stderr, "%s: invalid option -- %c\n", argv[0], opt);
-				HELP(-2);
+			case ':': case '?': default: HELP(-2);
 		}
 	}
 
@@ -95,7 +88,7 @@ int main(int argc, char **argv){
 		return err;
 	}
 
-	err = action(argc-optind-1, argv+(optind+1), verbose);
+	err = action(argc-optind-1, argv+(optind+1));
 	finish_usb();
 	return err;
 }
