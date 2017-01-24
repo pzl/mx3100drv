@@ -31,6 +31,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 static int read_section(unsigned char addr, unsigned char *buf);
 static int write_section(unsigned char addr, unsigned char *buf);
 static int read_settings(unsigned char *config, unsigned char *buttons);
+static int write_settings(unsigned char *config, unsigned char *buttons);
 
 static int valid_hex(char *s);
 static int is_on_off(char *s);
@@ -57,12 +58,11 @@ MXCOMMAND(angle_snap) {
 	} else {
 		settings[ANGLE_SNAP_ADDR] = ANGLE_SNAP_DISABLED;
 	}
-	err = write_section(CONFIGS_ADDR,settings);
-	if (err != 0){
+
+	if ( (err=write_settings(settings, buttons)) != 0){
 		fprintf(stderr, "Error changing angle snap\n");
-		return err;
 	}
-	return write_section(BUTTONS_ADDR,buttons);
+	return err;
 }
 
 MXCOMMAND(angle_correct) {
@@ -98,12 +98,10 @@ MXCOMMAND(angle_correct) {
 			fprintf(stderr, "invalid number provided. Must be between -2 and 2. %d given\n", angle);
 			return -2;
 	}
-	err = write_section(CONFIGS_ADDR,settings);
-	if (err != 0){
+	if ( (err = write_settings(settings,buttons)) != 0){
 		fprintf(stderr, "Error changing angle snap\n");
-		return err;
 	}
-	return write_section(BUTTONS_ADDR,buttons);
+	return err;
 }
 
 MXCOMMAND(led_mode) {
@@ -137,12 +135,12 @@ MXCOMMAND(led_mode) {
 		return -2;
 	}
 
-	err = write_section(CONFIGS_ADDR, settings);
-	if (err != 0) {
+	if ((err = write_settings(settings,buttons)) != 0){
 		fprintf(stderr, "Error changing LED mode\n");
-		return err;
 	}
-	return write_section(BUTTONS_ADDR, buttons);
+	return err;
+}
+
 }
 
 int send_startup_cmds(void) {
@@ -169,6 +167,12 @@ static int read_settings(unsigned char *config, unsigned char *buttons) {
 		return -2;
 	}
 	return 0;
+}
+static int write_settings(unsigned char *config, unsigned char *buttons) {
+	int err;
+	err = write_section(CONFIGS_ADDR, config);
+	if (err != 0) { return err; }
+	return write_section(BUTTONS_ADDR, buttons);
 }
 
 static int read_section(unsigned char addr, unsigned char *buf) {
