@@ -19,20 +19,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #ifndef MX_MX_H
 #define MX_MX_H
 
+/* buffer sizes */
 #define CMD_MSG_LEN 8
 #define DATA_LINE_LEN 64
 #define DATA_LINES 2
 
+/* memory map addresses */
 #define CONFIGS_ADDR 0x73
 #define BUTTONS_ADDR 0x72
+#define MACRO_ADDR_START 0x6f
+#define NUM_MACROS 19
 
+/* bit calculations for address checks */
 #define SETTINGS_ADDR_MAX 0x73
 #define SETTINGS_ADDR_PARITY 0x0c
 #define MACRO_ADDR_PARITY 0x70
-
 #define MACRO_MEM_FLAG 0x0f
-#define MACRO_ADDR_START 0x6f
-#define NUM_MACROS 19
+/* bit command flags */
+#define ADDR_READ (1 << 7)
+
 
 /* unknown, infrequently sent commands */
 #define CMD_ADMIN_1 {0x82,0x00,0x00,0x00,0x00,0x00,0x00,0x7d}
@@ -40,9 +45,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
 
-#define ADDR_READ (1 << 7)
 
-
+/* Settings locations */
+#define ANGLE_SNAP_ADDR 0x33
+#define ANGLE_SNAP_ENABLED 1
+#define ANGLE_SNAP_DISABLED 0
+//oddly no linear or bitwise relationship here
+#define ANGLE_CORRECT_ADDR 0x31
+#define ANGLE_CORRECT_NEG2 0xe2
+#define ANGLE_CORRECT_NEG1 0xf6
+#define ANGLE_CORRECT_ZERO 0x00
+#define ANGLE_CORRECT_POS1 0x0f
+#define ANGLE_CORRECT_POS2 0x1e
 
 
 
@@ -54,6 +68,8 @@ typedef int (*MXCommand)(int, char **, int);
 /*
 	User-facing commands
 */
+MXCOMMAND(angle_snap);
+MXCOMMAND(angle_correct);
 
 
 /* internal helpers */
