@@ -55,7 +55,9 @@ inspecting or changing mouse settings. Provide all arguments to change a setting
 - **speed** [`TIME`]
     Determines the speed of the LED pulsing when in Breathe mode, or cycling in Neon mode. Smaller number is faster. Min: 1, Max: 15
 - **brightness** [`VALUE`]
-   Determines the intensity of the LED in standard mode. Min: 0, Max: 10. A setting of 0 does not turn the LED off. Use the **led** command set to `off` to do that.
+    Determines the intensity of the LED in standard mode. Min: 0, Max: 10. A setting of 0 does not turn the LED off. Use the **led** command set to `off` to do that.
+- **sensitivity** `X`|`Y` [`VALUE`]
+    The X and Y sensitivity of the mouse movement. Min: 1, Max: 10.
 
 ### Bulk Commands
 

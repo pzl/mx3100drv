@@ -204,6 +204,47 @@ MXCOMMAND(led_speed) {
 	return write_settings(settings,buttons);
 }
 
+MXCOMMAND(sensitivity) {
+	int err, value;
+	unsigned char addr = 0;
+	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
+				  buttons[DATA_LINE_LEN*DATA_LINES];
+	err = read_settings(settings, buttons);
+	if (err != 0) { return err; }
+
+	if (argc == 0) {
+		fprintf(stderr, "argument X or Y required\n");
+		return -2;
+	}
+
+	if ( (argv[0][0] == 'x' || argv[0][0] == 'X') && argv[0][1] == '\0' ) {
+		addr = SENSITIVITY_X_ADDR;
+	} else if ( (argv[0][0] == 'y' || argv[0][0] == 'Y') && argv[0][1] == '\0' ) {
+		addr = SENSITIVITY_Y_ADDR;
+	} else {
+		fprintf(stderr, "invalid argument. Must specify X or Y here\n");
+		return -2;
+	}
+
+	if (argc == 1) {
+		printf("%d\n", settings[addr] / SENSITIVITY_STEP);
+		return 0;
+	}
+
+	value = atoi(argv[1]);
+	if ( value < SENSITIVITY_MIN || value > SENSITIVITY_MAX) {
+		fprintf(stderr, "sensitivity out of range. Must be number from %d to %d\n", SENSITIVITY_MIN, SENSITIVITY_MAX);
+		return -2;
+	}
+
+	settings[addr] = value*SENSITIVITY_STEP;
+
+	if ((err = write_settings(settings,buttons)) != 0){
+		fprintf(stderr, "Error changing sensitivity\n");
+	}
+	return err;
+}
+
 int send_startup_cmds(void) {
 	int err;
 

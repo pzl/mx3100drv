@@ -70,6 +70,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define LED_SPEED_MIN    0x01
 #define LED_SPEED_MAX    0x0F
 
+#define SENSITIVITY_X_ADDR 0x4a
+#define SENSITIVITY_Y_ADDR 0x4b
+#define SENSITIVITY_MIN 1
+#define SENSITIVITY_MAX 10
+#define SENSITIVITY_STEP 0x14
+
 typedef int (*MXCommand)(int, char **);
 #define MXCOMMAND(func_name) int func_name(int argc, char **argv)
 
@@ -83,6 +89,7 @@ MXCOMMAND(angle_correct);
 MXCOMMAND(led_mode);
 MXCOMMAND(led_brightness);
 MXCOMMAND(led_speed);
+MXCOMMAND(sensitivity);
 
 /* setup */
 int send_startup_cmds(void);
