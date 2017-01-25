@@ -40,13 +40,22 @@ Usage
 
 ## Options
 - `-h`, `--help`
-- `-v`, `--verbose`
-- `-V`, `--version`
+- `-v`, `--version`
 
 ## Commands
 ### Configuration Commands
 inspecting or changing mouse settings. Provide all arguments to change a setting to be that value. Leave off the final optional argument to retrieve the current value of that setting.
-
+ 
+ - **snap** [`ON`|`OFF`]
+    Controls the in-mouse Angle Correction feature to change slight curve movements of the mouse to straighter lines
+- **angle** [`LEVEL`]
+    Controls the in-mouse Gesture correction feature to adjust the mouse movement angle. Valid values are -2,-1,0,1,2 (for -30 degrees, -15, 0, 15, 30, respectively).
+- **led** [`MODE`]
+    Determines LED mode. Valid `MODE`s are: `standard`, `breathe`, `neon`, and `off`. Standard mode is a solid LED color (color determined by DPI color), dimmable via the **brightness** setting. Breathe mode pulses the LED, with timing controlled by **speed** option, color determined by DPI color. Neon mode cycles between all colors, the speed of that cycle controlled by **speed** command, DPI color is ignored. Off turns the LED off.
+- **speed** [`TIME`]
+    Determines the speed of the LED pulsing when in Breathe mode, or cycling in Neon mode. Smaller number is faster. Min: 1, Max: 15
+- **brightness** [`VALUE`]
+   Determines the intensity of the LED in standard mode. Min: 0, Max: 10. A setting of 0 does not turn the LED off. Use the **led** command set to `off` to do that.
 
 ### Bulk Commands
 
