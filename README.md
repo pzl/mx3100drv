@@ -46,7 +46,7 @@ Usage
 ### Configuration Commands
 inspecting or changing mouse settings. Provide all arguments to change a setting to be that value. Leave off the final optional argument to retrieve the current value of that setting.
  
- - **snap** [`ON`|`OFF`]
+- **snap** [`ON`|`OFF`]
     Controls the in-mouse Angle Correction feature to change slight curve movements of the mouse to straighter lines
 - **angle** [`LEVEL`]
     Controls the in-mouse Gesture correction feature to adjust the mouse movement angle. Valid values are -2,-1,0,1,2 (for -30 degrees, -15, 0, 15, 30, respectively).
