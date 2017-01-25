@@ -37,7 +37,7 @@ else
 endif
 
 
-RULES = 99-mx2000.rules
+RULES = 99-mx3100.rules
 
 all: CFLAGS += -O2
 all: $(TARGET)
