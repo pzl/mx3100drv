@@ -245,6 +245,124 @@ MXCOMMAND(sensitivity) {
 	return err;
 }
 
+MXCOMMAND(dpi_enable) {
+	int err, profile;
+	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
+				  buttons[DATA_LINE_LEN*DATA_LINES];
+	err = read_settings(settings, buttons);
+	if (err != 0) { return err; }
+	profile = atoi(argv[0]);
+	if (profile < DPI_PROFILE_MIN || profile > DPI_PROFILE_MAX) {
+		fprintf(stderr, "DPI profile out of range. Must be %d-%d\n", DPI_PROFILE_MIN,DPI_PROFILE_MAX);
+		return -2;
+	}
+
+	/* One byte stores the enable flags for all 7 profiles
+		Each bit 0-6 represents each profile
+	*/
+	profile--; 
+	if (argc == 1) {
+		if ( settings[DPI_ENABLE_ADDR] & (1<<profile) ) {
+			printf("on\n");
+		} else {
+			printf("off\n");
+		}
+		return 0;
+	}
+
+	if (strcmp(argv[1],"on") == 0) {
+		settings[DPI_ENABLE_ADDR] |= (1<<profile);
+	} else {
+		settings[DPI_ENABLE_ADDR] &= ~(1<<profile);
+	}
+	if ((err = write_settings(settings,buttons)) != 0){
+		fprintf(stderr, "Error changing DPI profile\n");
+	}
+	return err;
+}
+
+MXCOMMAND(dpi_color) {
+	int err, profile;
+	unsigned long new_color;
+	char *end;
+	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
+				  buttons[DATA_LINE_LEN*DATA_LINES];
+	err = read_settings(settings, buttons);
+	if (err != 0) { return err; }
+	profile = atoi(argv[0]);
+	if (profile < DPI_PROFILE_MIN || profile > DPI_PROFILE_MAX) {
+		fprintf(stderr, "DPI profile out of range. Must be %d-%d\n", DPI_PROFILE_MIN,DPI_PROFILE_MAX);
+		return -2;
+	}
+	profile--;
+
+	if (argc == 2) {
+		printf("%02x%02x%02x\n",
+		       settings[DPI_COLOR_ADDR_START+profile*DPI_COLOR_ADDR_STEP],
+		       settings[DPI_COLOR_ADDR_START+profile*DPI_COLOR_ADDR_STEP+1],
+		       settings[DPI_COLOR_ADDR_START+profile*DPI_COLOR_ADDR_STEP+2]);
+		return 0;
+	}
+
+	if (!valid_hex(argv[2])){
+		fprintf(stderr, "invalid color. Please specify a 6-character Hex string without '#'\n");
+		return -2;
+	}
+
+	new_color = strtoul(argv[2],&end,16);
+	if (*end != '\0'){
+		fprintf(stderr, "Error: failed to parse color, was not valid hex\n");
+		return -2;
+	}
+
+	settings[DPI_COLOR_ADDR_START+profile*DPI_COLOR_ADDR_STEP] = ( (new_color & 0xff0000) >> 16 );
+	settings[DPI_COLOR_ADDR_START+profile*DPI_COLOR_ADDR_STEP+1]=( (new_color & 0x00ff00) >> 8 );
+	settings[DPI_COLOR_ADDR_START+profile*DPI_COLOR_ADDR_STEP+2]=( (new_color & 0x0000ff) );
+
+	if ((err = write_settings(settings,buttons)) != 0){
+		fprintf(stderr, "Error changing DPI color\n");
+	}
+	return err;
+}
+
+MXCOMMAND(dpi_value) {
+	int err, profile, value;
+	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
+				  buttons[DATA_LINE_LEN*DATA_LINES];
+	err = read_settings(settings, buttons);
+	if (err != 0) { return err; }
+	profile = atoi(argv[0]);
+	if (profile < DPI_PROFILE_MIN || profile > DPI_PROFILE_MAX) {
+		fprintf(stderr, "DPI profile out of range. Must be %d-%d\n", DPI_PROFILE_MIN,DPI_PROFILE_MAX);
+		return -2;
+	}
+	profile--;
+
+	if (argc == 2) {
+		printf("%d\n", (settings[DPI_VALUE_ADDR_X+profile]+1)*100);
+		return 0;
+	}
+
+	value = atoi(argv[2]);
+	if (value < DPI_VALUE_MIN || value > DPI_VALUE_MAX) {
+		fprintf(stderr, "DPI value out of range. Must be %d-%d\n", DPI_VALUE_MIN, DPI_VALUE_MAX);
+		return -2;
+	}
+	if (value%100 != 0) {
+		fprintf(stderr, "DPI must be an even multiple of 100. (100,200,300,..12000)\n");
+		return -2;
+	}
+	value = (value/100)-1;
+
+	settings[DPI_VALUE_ADDR_X+profile] = value;
+	settings[DPI_VALUE_ADDR_Y+profile] = value;
+
+	if ((err = write_settings(settings,buttons)) != 0){
+		fprintf(stderr, "Error changing DPI value\n");
+	}
+	return err;
+}
+
 int send_startup_cmds(void) {
 	int err;
 

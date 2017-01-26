@@ -58,6 +58,12 @@ inspecting or changing mouse settings. Provide all arguments to change a setting
     Determines the intensity of the LED in standard mode. Min: 0, Max: 10. A setting of 0 does not turn the LED off. Use the **led** command set to `off` to do that.
 - **sensitivity** `X`|`Y` [`VALUE`]
     The X and Y sensitivity of the mouse movement. Min: 1, Max: 10.
+- **dpi** `PROFILE` [`off`|`on`]
+    Turns DPI `PROFILE` (1-7) on or off (or tells you, if last argument is omitted).
+- **dpi** `PROFILE` **color** [`HEX`]
+    Controls the LED color for profile number `PROFILE` (1-7). `HEX` should be a 6-digit hex representation of RGB, like you would use in HTML/CSS. Do not include the '#'.
+- **dpi** `PROFILE` **value** [`AMOUNT`]
+    The actual _dpi_ for the given dpi profile as `AMOUNT`. Min: 100, Max:12000
 
 ### Bulk Commands
 

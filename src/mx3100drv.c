@@ -64,6 +64,21 @@ int main(int argc, char **argv){
 		action = led_speed;
 	} else if (strcmp(command,"sensitivity") == 0) {
 		action = sensitivity;
+	} else if (strcmp(command,"dpi") == 0) {
+		if ( argc-optind-1 == 0 ) {
+			fprintf(stderr, "dpi commands require a profile number\n");
+			HELP(-2);
+		}
+		if ( argc-optind-1 == 1 || strcmp(argv[optind+2],"on") == 0 || strcmp(argv[optind+2],"off") == 0) {
+			action = dpi_enable;
+		} else if (strcmp(argv[optind+2],"color") == 0){
+			action = dpi_color;
+		} else if (strcmp(argv[optind+2],"value") == 0){
+			action = dpi_value;
+		} else {
+			fprintf(stderr, "Invalid dpi command\n");
+			HELP(-2);
+		}
 	} else {
 		fprintf(stderr, "%s is not a valid command.\n", command);
 		HELP(-2);

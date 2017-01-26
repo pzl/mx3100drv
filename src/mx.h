@@ -76,6 +76,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define SENSITIVITY_MAX 10
 #define SENSITIVITY_STEP 0x14
 
+#define DPI_ENABLE_ADDR      0x64
+#define DPI_VALUE_ADDR_X     0x54
+#define DPI_VALUE_ADDR_Y     0x5c
+#define DPI_COLOR_ADDR_START 0x68
+#define DPI_COLOR_ADDR_STEP  0x03
+#define DPI_PROFILE_MIN 1
+#define DPI_PROFILE_MAX 7
+#define DPI_VALUE_MIN 100
+#define DPI_VALUE_MAX 12000
+
+
 typedef int (*MXCommand)(int, char **);
 #define MXCOMMAND(func_name) int func_name(int argc, char **argv)
 
@@ -90,6 +101,9 @@ MXCOMMAND(led_mode);
 MXCOMMAND(led_brightness);
 MXCOMMAND(led_speed);
 MXCOMMAND(sensitivity);
+MXCOMMAND(dpi_enable);
+MXCOMMAND(dpi_color);
+MXCOMMAND(dpi_value);
 
 /* setup */
 int send_startup_cmds(void);
