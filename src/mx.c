@@ -39,8 +39,8 @@ static int on(char *s);
 
 MXCOMMAND(angle_snap) {
 	int err;
-	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
-				  buttons[DATA_LINE_LEN*DATA_LINES];
+	unsigned char settings[SECTION_LEN],
+				  buttons[SECTION_LEN];
 	err = read_settings(settings, buttons);
 	if (err != 0) { return err; }
 
@@ -67,8 +67,8 @@ MXCOMMAND(angle_snap) {
 
 MXCOMMAND(angle_correct) {
 	int err, angle;
-	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
-				  buttons[DATA_LINE_LEN*DATA_LINES];
+	unsigned char settings[SECTION_LEN],
+				  buttons[SECTION_LEN];
 	err = read_settings(settings, buttons);
 	if (err != 0) { return err; }
 
@@ -106,8 +106,8 @@ MXCOMMAND(angle_correct) {
 
 MXCOMMAND(led_mode) {
 	int err;
-	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
-				  buttons[DATA_LINE_LEN*DATA_LINES];
+	unsigned char settings[SECTION_LEN],
+				  buttons[SECTION_LEN];
 	err = read_settings(settings, buttons);
 	if (err != 0) { return err; }
 
@@ -148,8 +148,8 @@ MXCOMMAND(led_mode) {
 
 MXCOMMAND(led_brightness) {
 	int err, value;
-	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
-				  buttons[DATA_LINE_LEN*DATA_LINES];
+	unsigned char settings[SECTION_LEN],
+				  buttons[SECTION_LEN];
 	err = read_settings(settings, buttons);
 	if (err != 0) { return err; }
 
@@ -179,8 +179,8 @@ MXCOMMAND(led_brightness) {
 
 MXCOMMAND(led_speed) {
 	int err, value;
-	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
-				  buttons[DATA_LINE_LEN*DATA_LINES];
+	unsigned char settings[SECTION_LEN],
+				  buttons[SECTION_LEN];
 	err = read_settings(settings, buttons);
 	if (err != 0) { return err; }
 
@@ -207,8 +207,8 @@ MXCOMMAND(led_speed) {
 MXCOMMAND(sensitivity) {
 	int err, value;
 	unsigned char addr = 0;
-	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
-				  buttons[DATA_LINE_LEN*DATA_LINES];
+	unsigned char settings[SECTION_LEN],
+				  buttons[SECTION_LEN];
 	err = read_settings(settings, buttons);
 	if (err != 0) { return err; }
 
@@ -247,8 +247,8 @@ MXCOMMAND(sensitivity) {
 
 MXCOMMAND(dpi_enable) {
 	int err, profile;
-	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
-				  buttons[DATA_LINE_LEN*DATA_LINES];
+	unsigned char settings[SECTION_LEN],
+				  buttons[SECTION_LEN];
 	err = read_settings(settings, buttons);
 	if (err != 0) { return err; }
 	profile = atoi(argv[0]);
@@ -285,8 +285,8 @@ MXCOMMAND(dpi_color) {
 	int err, profile;
 	unsigned long new_color;
 	char *end;
-	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
-				  buttons[DATA_LINE_LEN*DATA_LINES];
+	unsigned char settings[SECTION_LEN],
+				  buttons[SECTION_LEN];
 	err = read_settings(settings, buttons);
 	if (err != 0) { return err; }
 	profile = atoi(argv[0]);
@@ -327,8 +327,8 @@ MXCOMMAND(dpi_color) {
 
 MXCOMMAND(dpi_value) {
 	int err, profile, value;
-	unsigned char settings[DATA_LINE_LEN*DATA_LINES],
-				  buttons[DATA_LINE_LEN*DATA_LINES];
+	unsigned char settings[SECTION_LEN],
+				  buttons[SECTION_LEN];
 	err = read_settings(settings, buttons);
 	if (err != 0) { return err; }
 	profile = atoi(argv[0]);
@@ -366,18 +366,14 @@ MXCOMMAND(dpi_value) {
 
 MXCOMMAND(factory_reset) {
 	int err, i;
-	unsigned char zeroes[DATA_LINE_LEN*DATA_LINES] = {0},
-				  response[CMD_MSG_LEN],
-				  config_buf[DATA_LINE_LEN*DATA_LINES];
+	unsigned char factory_settings[FULL_BUF] = {0};
 
 	(void) argc;
 	(void) argv;
 
-	err = send_ctl((unsigned char *)CMD_ADMIN_1);
-	err = read_ctl(response);
-	err = send_ctl((unsigned char *)CMD_ADMIN_2);
-	send_startup_cmds();
-	err = read_section(CONFIGS_ADDR,config_buf);
+	memcpy(factory_settings,factory_config,SECTION_LEN);
+	memcpy(factory_settings+(SECTION_LEN),factory_buttons, SECTION_LEN );
+
 
 	err = write_settings((unsigned char *)factory_config, (unsigned char *)factory_buttons);
 	if (err != 0){
@@ -399,7 +395,7 @@ MXCOMMAND(save_info) {
 	FILE *fp;
 	int err, i;
 	unsigned char *bufp,
-				  buf[DATA_LINE_LEN*DATA_LINES*(2+NUM_MACROS)];
+				  buf[FULL_BUF];
 
 	if (argc == 0 || (argv[0][0]=='-'&&argv[0][1]=='\0' ) ) {
 		fp = stdout;
@@ -415,18 +411,18 @@ MXCOMMAND(save_info) {
 
 	err = read_section(CONFIGS_ADDR,buf);
 	if (err !=0) { fprintf(stderr, "Error reading mouse memory\n"); return err; }
-	bufp +=DATA_LINES*DATA_LINE_LEN;
+	bufp +=SECTION_LEN;
 	err = read_section(BUTTONS_ADDR,bufp);
 	if (err !=0) { fprintf(stderr, "Error reading mouse memory\n"); return err; }
-	bufp += DATA_LINES*DATA_LINE_LEN;
+	bufp += SECTION_LEN;
 
 	for (i=0; i<NUM_MACROS; i++) {
 		err = read_section(MACRO_ADDR_START-i,bufp);
 		if (err!=0) { fprintf(stderr, "Error reading mouse memory\n"); return err; }
-		bufp += DATA_LINES*DATA_LINE_LEN;
+		bufp += SECTION_LEN;
 	}
 
-	fwrite(buf, sizeof(unsigned char), DATA_LINE_LEN*DATA_LINES*(2+NUM_MACROS), fp);
+	fwrite(buf, sizeof(unsigned char), FULL_BUF, fp);
 
 	fclose(fp);	/* word of caution:
 		we may have just closed stdout here, if no filename was given (or it was '-').
@@ -508,7 +504,7 @@ static int read_section(unsigned char addr, unsigned char *buf) {
 }
 
 static int write_section(unsigned char addr, unsigned char *buf) {
-	unsigned char cmd[CMD_MSG_LEN] = {0x00,0x00,DATA_LINE_LEN*DATA_LINES,0x00,0x00,0x00,0x00,addr};
+	unsigned char cmd[CMD_MSG_LEN] = {0x00,0x00,SECTION_LEN,0x00,0x00,0x00,0x00,addr};
 	int err;
 
 	if ( addr == CONFIGS_ADDR || addr == BUTTONS_ADDR ) {

@@ -23,12 +23,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define CMD_MSG_LEN 8
 #define DATA_LINE_LEN 64
 #define DATA_LINES 2
+#define SECTION_LEN DATA_LINE_LEN*DATA_LINES
 
 /* memory map addresses */
 #define CONFIGS_ADDR 0x73
 #define BUTTONS_ADDR 0x72
 #define MACRO_ADDR_START 0x6f
 #define NUM_MACROS 19
+
+#define FULL_BUF DATA_LINE_LEN*DATA_LINES+(2*NUM_MACROS)
 
 /* bit calculations for address checks */
 #define SETTINGS_ADDR_MAX 0x73

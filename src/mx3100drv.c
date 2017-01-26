@@ -108,13 +108,11 @@ int main(int argc, char **argv){
 		return err;
 	}
 
-	if ( action != factory_reset) {
-		err = send_startup_cmds();
-		if (err != 0){
-			fprintf(stderr, "error sending startup commands\n");
-			finish_usb();
-			return err;
-		}
+	err = send_startup_cmds();
+	if (err != 0){
+		fprintf(stderr, "error sending startup commands\n");
+		finish_usb();
+		return err;
 	}
 
 	err = action(argc-optind-1, argv+(optind+1));
