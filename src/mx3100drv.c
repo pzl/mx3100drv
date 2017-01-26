@@ -79,6 +79,9 @@ int main(int argc, char **argv){
 			fprintf(stderr, "Invalid dpi command\n");
 			HELP(-2);
 		}
+	/* a bit broken */
+	/*} else if (strcmp(command,"reset") == 0) {
+		action = factory_reset;*/
 	} else {
 		fprintf(stderr, "%s is not a valid command.\n", command);
 		HELP(-2);
@@ -103,12 +106,13 @@ int main(int argc, char **argv){
 		return err;
 	}
 
-
-	err = send_startup_cmds();
-	if (err != 0){
-		fprintf(stderr, "error sending startup commands\n");
-		finish_usb();
-		return err;
+	if ( action != factory_reset) {
+		err = send_startup_cmds();
+		if (err != 0){
+			fprintf(stderr, "error sending startup commands\n");
+			finish_usb();
+			return err;
+		}
 	}
 
 	err = action(argc-optind-1, argv+(optind+1));

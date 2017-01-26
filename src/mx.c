@@ -363,6 +363,39 @@ MXCOMMAND(dpi_value) {
 	return err;
 }
 
+
+MXCOMMAND(factory_reset) {
+	int err, i;
+	unsigned char zeroes[DATA_LINE_LEN*DATA_LINES] = {0},
+				  response[CMD_MSG_LEN],
+				  config_buf[DATA_LINE_LEN*DATA_LINES];
+
+	(void) argc;
+	(void) argv;
+
+	err = send_ctl((unsigned char *)CMD_ADMIN_1);
+	err = read_ctl(response);
+	err = send_ctl((unsigned char *)CMD_ADMIN_2);
+	send_startup_cmds();
+	err = read_section(CONFIGS_ADDR,config_buf);
+
+	err = write_settings((unsigned char *)factory_config, (unsigned char *)factory_buttons);
+	if (err != 0){
+		fprintf(stderr, "Error writing factory settings\n");
+		return err;
+	}
+
+	for (i=0; i<NUM_MACROS; i++){
+		err = write_section(MACRO_ADDR_START-i,zeroes);
+		if (err != 0){
+			fprintf(stderr, "Error writing factory settings, macro memory failed\n");
+			return err;
+		}
+	}
+	return 0;
+}
+
+
 int send_startup_cmds(void) {
 	int err;
 
