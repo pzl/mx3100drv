@@ -82,6 +82,8 @@ int main(int argc, char **argv){
 	/* a bit broken */
 	/*} else if (strcmp(command,"reset") == 0) {
 		action = factory_reset;*/
+	} else if (strcmp(command,"dump") == 0) {
+		action = save_info;
 	} else {
 		fprintf(stderr, "%s is not a valid command.\n", command);
 		HELP(-2);

@@ -395,6 +395,52 @@ MXCOMMAND(factory_reset) {
 	return 0;
 }
 
+MXCOMMAND(save_info) {
+	FILE *fp;
+	int err, i;
+	unsigned char *bufp,
+				  buf[DATA_LINE_LEN*DATA_LINES*(2+NUM_MACROS)];
+
+	if (argc == 0 || (argv[0][0]=='-'&&argv[0][1]=='\0' ) ) {
+		fp = stdout;
+	} else {
+		fp = fopen(argv[0],"wb");
+		if (fp == NULL) {
+			fprintf(stderr, "Error opening file for writing\n");
+			return -1;
+		}
+	}
+
+	bufp = buf;
+
+	err = read_section(CONFIGS_ADDR,buf);
+	if (err !=0) { fprintf(stderr, "Error reading mouse memory\n"); return err; }
+	bufp +=DATA_LINES*DATA_LINE_LEN;
+	err = read_section(BUTTONS_ADDR,bufp);
+	if (err !=0) { fprintf(stderr, "Error reading mouse memory\n"); return err; }
+	bufp += DATA_LINES*DATA_LINE_LEN;
+
+	for (i=0; i<NUM_MACROS; i++) {
+		err = read_section(MACRO_ADDR_START-i,bufp);
+		if (err!=0) { fprintf(stderr, "Error reading mouse memory\n"); return err; }
+		bufp += DATA_LINES*DATA_LINE_LEN;
+	}
+
+	fwrite(buf, sizeof(unsigned char), DATA_LINE_LEN*DATA_LINES*(2+NUM_MACROS), fp);
+
+	fclose(fp);	/* word of caution:
+		we may have just closed stdout here, if no filename was given (or it was '-').
+		So any printfs or fprintf(stdout) will be quite a problem. But since to reach
+		this scenario, we are printing binary info to stdout, so it's likely being piped
+		into a file or into something like xxd, we likely *don't* want to print anything
+		else to stdout, since that would mess with the output. So closing is fine, but
+		we need to make sure we strictly refrain from printing to stdout. Almost everything
+		should go to stderr.
+	*/
+
+	return err;
+}
+
 
 int send_startup_cmds(void) {
 	int err;

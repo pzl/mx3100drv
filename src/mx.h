@@ -140,6 +140,7 @@ MXCOMMAND(dpi_enable);
 MXCOMMAND(dpi_color);
 MXCOMMAND(dpi_value);
 MXCOMMAND(factory_reset);
+MXCOMMAND(save_info);
 
 /* setup */
 int send_startup_cmds(void);
