@@ -31,7 +31,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define MACRO_ADDR_START 0x6f
 #define NUM_MACROS 19
 
-#define FULL_BUF DATA_LINE_LEN*DATA_LINES+(2*NUM_MACROS)
+#define FULL_BUF DATA_LINE_LEN*DATA_LINES*(2+NUM_MACROS)
 
 /* bit calculations for address checks */
 #define SETTINGS_ADDR_MAX 0x73

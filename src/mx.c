@@ -28,6 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 	} } while(0)
 
 /* internal helpers */
+static int write_full_memory(unsigned char *buf);
 static int read_section(unsigned char addr, unsigned char *buf);
 static int write_section(unsigned char addr, unsigned char *buf);
 static int read_settings(unsigned char *config, unsigned char *buttons);
@@ -366,29 +367,15 @@ MXCOMMAND(dpi_value) {
 
 MXCOMMAND(factory_reset) {
 	int err, i;
-	unsigned char factory_settings[FULL_BUF] = {0};
+	unsigned char factory_settings[FULL_BUF] = {0}; /* zero out macro mem */
 
 	(void) argc;
 	(void) argv;
 
 	memcpy(factory_settings,factory_config,SECTION_LEN);
-	memcpy(factory_settings+(SECTION_LEN),factory_buttons, SECTION_LEN );
+	memcpy(factory_settings+SECTION_LEN,factory_buttons, SECTION_LEN );
 
-
-	err = write_settings((unsigned char *)factory_config, (unsigned char *)factory_buttons);
-	if (err != 0){
-		fprintf(stderr, "Error writing factory settings\n");
-		return err;
-	}
-
-	for (i=0; i<NUM_MACROS; i++){
-		err = write_section(MACRO_ADDR_START-i,zeroes);
-		if (err != 0){
-			fprintf(stderr, "Error writing factory settings, macro memory failed\n");
-			return err;
-		}
-	}
-	return 0;
+	return write_full_memory(factory_settings);
 }
 
 MXCOMMAND(save_info) {
@@ -448,6 +435,28 @@ int send_startup_cmds(void) {
 	return err;
 }
 
+static int write_full_memory(unsigned char *buf) {
+	int err, i;
+	unsigned char config_buf[SECTION_LEN];
+
+	err = read_section(CONFIGS_ADDR,config_buf);
+
+	// Configs
+	err = write_section(CONFIGS_ADDR,buf);
+	if (err != 0) { fprintf(stderr, "Error writing to memory\n"); return err; }
+	buf += SECTION_LEN;
+	// Buttons
+	err = write_section(BUTTONS_ADDR,buf);
+	if (err != 0) { fprintf(stderr, "Error writing to memory\n"); return err; }
+	buf += SECTION_LEN;
+
+	for (i=0; i<NUM_MACROS; i++) {
+		err = write_section(MACRO_ADDR_START-i,buf);
+		if (err != 0) { fprintf(stderr, "Error writing to memory\n"); return err; }
+		buf += SECTION_LEN;
+	}
+	return err;
+}
 
 static int read_settings(unsigned char *config, unsigned char *buttons) {
 	int err;
