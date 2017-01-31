@@ -112,7 +112,7 @@ int send_ctl(unsigned char *buf) {
 
 int read_ctl(unsigned char *buf){
 	int err;
-	unsigned char response[9];
+	unsigned char response[9] = {0};
 
 	/* Make sure we have a valid device handle */
 	if (device == NULL){

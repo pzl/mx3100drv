@@ -366,9 +366,7 @@ MXCOMMAND(dpi_value) {
 
 
 MXCOMMAND(factory_reset) {
-	int err, i;
 	unsigned char factory_settings[FULL_BUF] = {0}; /* zero out macro mem */
-
 	(void) argc;
 	(void) argv;
 
